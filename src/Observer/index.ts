@@ -1,38 +1,40 @@
 interface Observador {
-  cambiarEstado(estado: string): void;
+  actualizar(estado: string): void;
 }
 
-class Soporte {
+class Equipo {
   private observadores: Observador[] = [];
-  private estado: string = "disponible";
-
-  agregarObservador(observador: Observador): void {
-    this.observadores.push(observador);
-  }
-
-  private notificarObservadores(): void {
-    this.observadores.forEach((obs) => obs.cambiarEstado(this.estado));
-  }
-
-  cambiarEstado(nuevoStatus: string): void {
-    this.estado = nuevoStatus;
-    this.notificarObservadores();
-  }
-}
-
-class Equipo implements Observador {
   constructor(
     public nombre: string,
     public tipo: string,
     public estado: string
   ) {}
-  cambiarEstado(estado: string): void {
-    this.estado = estado;
-    console.log(`${this.nombre} en ${this.estado}.`);
+
+  agregarObservador(obs: Observador): void {
+    this.observadores.push(obs);
+  }
+
+  private notificar(): void {
+    this.observadores.forEach((o) => o.actualizar(this.estado));
+  }
+
+  cambiarEstado(nuevoEstado: string): void {
+    this.estado = nuevoEstado;
+    console.log(`${this.nombre} ${this.estado}`);
+    this.notificar();
   }
 }
 
-const soporte = new Soporte();
-const equipo = new Equipo("Notebook HP", "Portatil", "disponible");
-soporte.agregarObservador(equipo);
-equipo.cambiarEstado("en reparacion");
+class Soporte implements Observador {
+  actualizar(estado: string): void {
+    console.log(`Soporte notificado: el equipo está ${estado}`);
+  }
+}
+
+export function RunObserver() {
+  const equipo = new Equipo("Notebook HP", "Portatil", "disponible");
+  const soporte = new Soporte();
+
+  equipo.agregarObservador(soporte);
+  equipo.cambiarEstado("en reparación");
+}
